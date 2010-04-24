@@ -130,6 +130,23 @@ Add a datatable method on your controller to return JSON
       return conditions.join(" AND ")
     end
     
+##### Multiple Columns Sort
+
+    def current_objects(params={})
+      current_page = (params[:iDisplayStart].to_i/params[:iDisplayLength].to_i rescue 0)+1
+      @current_objects = Object.paginate :page => current_page,
+                                         :include => [:user],
+                                         :order => sort_keys,
+                                         :conditions => conditions,
+                                         :per_page => params[:iDisplayLength]
+    end
+    
+    def sort_keys
+      Array(0..params[:iSortingCols].to_i).inject([]) do |memo, i|
+        memo << "#{datatable_columns(params["iSortCol_#{i}"])} #{params["sSortDir_#{i}"] || "DESC"}"; memo
+      end.join(',')
+    end
+
 ### Note
 There is a more functionality offered by DataTables than this plugin currently provides. We add to it as we find need for other features. If there's a feature of DataTables that you'd like to see, fork this repo and add it so we can all benefit.
 
